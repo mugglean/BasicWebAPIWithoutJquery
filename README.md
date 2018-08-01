@@ -1,1 +1,3 @@
 # BasicWebAPIWithoutJquery
+一些使用原生javascript实现的动态web效果，没有使用jquery库
+在js文件夹下封装了处理浏览器兼容性的common.js和动画函数animate.js
