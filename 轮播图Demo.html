@@ -1,0 +1,221 @@
+
+<!DOCTYPE html>
+<!--
+轮播图Demo,使用Chrone才可以打开
+难点：
+无缝滚动时，并不是直接进入第一个li的点击事件，而是先克隆一个li放在最后一个li后面。
+这样在进入倒数第二个li的时候就会进入克隆的li，然后马上进入第一个li，实现无缝滚动。
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        * {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            border: 0;
+        }
+
+        .all {
+            width: 500px;
+            height: 200px;
+            padding: 7px;
+            border: 1px solid #ccc;
+            margin: 100px auto;
+            position: relative;
+        }
+
+        .screen {
+            width: 500px;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen li {
+            width: 500px;
+            height: 200px;
+            overflow: hidden;
+            float: left;
+        }
+
+        .screen ul {
+            position: absolute;
+            left: 0;
+            top: 0px;
+            width: 3000px;
+        }
+
+        .all ol {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            line-height: 20px;
+            text-align: center;
+        }
+
+        .all ol li {
+            float: left;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .all ol li.current {
+            background: yellow;
+        }
+
+        #arr {
+            display: none;
+            z-index: 1000;
+
+        }
+
+        #arr span {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            left: 5px;
+            top: 50%;
+            margin-top: -20px;
+            background: #000;
+            cursor: pointer;
+            line-height: 40px;
+            text-align: center;
+            font-weight: bold;
+            font-family: '黑体';
+            font-size: 30px;
+            color: #fff;
+            opacity: 0.3;
+            border: 1px solid #fff;
+        }
+
+        #arr #right {
+            right: 5px;
+            left: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="all" id='box'>
+    <div class="screen">
+        <ul>
+            <li><img src="images/wf1.jpg" width="500" height="200"/></li>
+            <li><img src="images/wf2.jpg" width="500" height="200"/></li>
+            <li><img src="images/wf3.jpg" width="500" height="200"/></li>
+            <li><img src="images/wf4.jpg" width="500" height="200"/></li>
+            <li><img src="images/wf5.jpg" width="500" height="200"/></li>
+        </ul>
+        <ol>
+        </ol>
+    </div>
+    <div id="arr"><span id="left">&lt;</span><span id="right">&gt;</span></div>
+</div>
+<script src="js/common.js"></script>
+<script src="js/animate.js"></script>
+<script>
+  // 获取元素
+  var box = my$('box');
+  var screen = box.children[0];
+  var ul = screen.children[0];
+  var ol = screen.children[1];
+
+
+  // 箭头
+  var arr = my$('arr');
+  var arrLeft = my$('left');
+  var arrRight = my$('right');
+  //图片宽度
+  var imgWidth=screen.offsetWidth;
+  //总共图片数
+  var count = ul.children.length;
+
+  // 1 动态生成序号
+  var count = ul.children.length;
+  for (var i = 0; i < count; i++) {
+    var li = document.createElement('li');
+    ol.appendChild(li);
+    setInnerText(li, i + 1);
+	li.onclick=liClick;
+	//设置序号以便liClick函数拿到
+	li.setAttribute('index',i);
+  }
+  // 让序号1高亮显示
+  ol.children[0].className = 'current';
+
+  // 2 点击序号 动画的方式 切换图片
+  function liClick(){
+	//所有的li取消高亮显示，并且点击哪个哪个显示
+	var liLength=ol.children.length;
+	for(var i = 0;i < liLength;i++){
+		var li = ol.children[i];
+		li.className='';
+	}
+	this.className='current';
+	//图片移动
+	var liIndex=parseInt(this.getAttribute('index'));
+	animate(ul,-liIndex*imgWidth);
+	index = liIndex;
+  }
+  // 3 鼠标放到盒子上显示箭头
+  box.onmouseover = function(){
+	arr.style.display='block';
+	clearInterval(timerId);
+  }
+  box.onmouseout = function () {
+    arr.style.display = 'none';
+    // 重新开启定时器
+    timerId = setInterval(function () {
+      arrRight.click();
+    }, 2000);
+  }
+  // 4 实现上一张和下一张的功能
+  var index=0;
+  arrRight.onclick = function(){
+	if (index === count) {
+	  //判断是进入克隆的li的时候，马上进入第一个li
+      ul.style.left = '0px';
+      index = 0;
+    }
+    index++;
+  	if(index<count){
+		ol.children[index].click();
+	}else{
+		//此时为克隆的li，但是这个时候没有对应的点击事件，改变不了下面的序号，所以要在这里改变序号
+		animate(ul,-index*imgWidth);
+		for (var i = 0; i < ol.children.length; i++) {
+			var li = ol.children[i];
+			li.className = '';
+        }
+        ol.children[0].className = 'current';
+	}
+
+
+  }
+  arrLeft.onclick = function () {
+    if (index === 0) {
+	  //在第一个图片点击前进时，马上进入克隆的元素
+      index = count;
+      ul.style.left = - index * imgWidth + 'px';
+    }
+	index--;
+	ol.children[index].click();
+  }
+
+  var timerId = setInterval(function () {
+    // 切换到下一张图片
+    arrRight.click();
+  }, 2000);
+
+  //无缝滚动时需要的克隆的li
+   var firstLi = ul.children[0];
+   var cloneLi = firstLi.cloneNode(true);
+   ul.appendChild(cloneLi);
+</script>
+</body>
+</html>

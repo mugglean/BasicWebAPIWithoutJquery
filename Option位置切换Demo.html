@@ -1,0 +1,100 @@
+<!DOCTYPE html>、
+<!--位置切换Demo
+可以直接全部拖去过或者选中拖过去
+四个按钮分别对应不同的事件
+
+ -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        select {
+            width:200px;
+            height: 200px;
+            background-color: #33cccc;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+  <select id="all" multiple="multiple">
+    <option>苹果</option>
+    <option>橘子</option>
+    <option>梨</option>
+    <option>西瓜</option>
+    <option>水蜜桃</option>
+  </select>
+
+  <input type="button" value=">>" id="btn1">
+  <input type="button" value="<<" id="btn2">
+  <input type="button" value=">" id="btn3">
+  <input type="button" value="<" id="btn4">
+
+  <select id="select" multiple="multiple">
+    
+  </select>
+  
+  <script src="js/common.js"></script>
+  <script>
+    var all = my$('all');
+    var select = my$('select');
+
+
+    // 1 全部选择
+    my$('btn1').onclick = function () {
+      // 为确保顺序相同，不停获取第一个子元素
+       var len = all.children.length;
+       for (var i = 0; i < len; i++) {
+         var option = all.children[0];
+         select.appendChild(option);
+       }
+ 
+    }
+	my$('btn2').onclick = function () {
+		var len = select.children.length;
+		for (var i = 0; i < len; i++) {
+         var option = select.children[0];
+         all.appendChild(option);
+       }
+	
+	}
+
+    // 3 移动选中的水果
+    my$('btn3').onclick = function () {
+      // 找到所有选中的option
+      var array = []; // 存储选中的option
+      for (var i = 0; i < all.children.length; i++) {
+        var option = all.children[i];
+        if (option.selected) {
+          array.push(option);
+          // 去掉当前option的选中效果
+          option.selected = false;
+        }
+      }
+
+      // 把数组中的option移动到第二个select中
+      for (var i = 0; i < array.length; i++) {
+        var option = array[i];
+        select.appendChild(option);
+      }
+    }
+	
+    my$('btn4').onclick = function () {
+      var array = []; 
+      for (var i = 0; i < select.children.length; i++) {
+        var option = select.children[i];
+        if (option.selected) {
+          array.push(option);
+          option.selected = false;
+        }
+      }
+
+      for (var i = 0; i < array.length; i++) {
+        var option = array[i];
+        all.appendChild(option);
+      }
+    }
+  </script>
+</body>
+</html>
